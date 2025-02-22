@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, ChangeEvent } from "react";
+import { useState, useEffect, ChangeEvent } from "react";
 import axios from "axios";
 
 // Define the shape of a NewsAPI article
@@ -15,6 +15,12 @@ export default function Home() {
   const [topic, setTopic] = useState<string>("");
   const [news, setNews] = useState<Article[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [isMounted, setIsMounted] = useState(false); // Track client-side mount
+
+  // Ensure this runs only on the client after mount
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const fetchNews = async () => {
     if (!topic) {
@@ -24,12 +30,12 @@ export default function Home() {
 
     setError(null);
     try {
-      const apiKey = process.env.NEWS_API_KEY || "fallback-key-if-needed";
+      const apiKey = process.env.NEWS_API_KEY || "53ba405be0c54878a0180c5989732008";
       const response = await axios.get(
         `https://newsapi.org/v2/everything?q=${topic}&apiKey=${apiKey}&sortBy=publishedAt`,
         {
           params: {
-            _t: new Date().getTime(),
+            _t: new Date().getTime(), // Cache-busting, safe on client
           },
         }
       );
@@ -51,10 +57,22 @@ export default function Home() {
     setTopic(e.target.value);
   };
 
+  // Render nothing or a loading state until mounted
+  if (!isMounted) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex flex-col items-center py-8">
+        <div className="flex items-center space-x-2 mb-6">
+          <span className="text-3xl bg-gradient-to-r from-orange-500 via-pink-500 to-yellow-500 text-transparent bg-clip-text">🌸</span>
+          <h1 className="text-4xl font-bold text-gray-800">Lantana Pulse</h1>
+        </div>
+        <p className="text-gray-600">Loading...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center py-8">
       <div className="flex items-center space-x-2 mb-6">
-        {/* Placeholder Logo */}
         <span className="text-3xl bg-gradient-to-r from-orange-500 via-pink-500 to-yellow-500 text-transparent bg-clip-text">🌸</span>
         <h1 className="text-4xl font-bold text-gray-800">Lantana Pulse</h1>
       </div>
