@@ -24,7 +24,7 @@ export default function Home() {
 
     setError(null);
     try {
-      const apiKey = "53ba405be0c54878a0180c5989732008";
+      const apiKey = process.env.NEWS_API_KEY || "fallback-key-if-needed";;
       const response = await axios.get(
         `https://newsapi.org/v2/everything?q=${topic}&apiKey=${apiKey}&sortBy=publishedAt`,
         {
